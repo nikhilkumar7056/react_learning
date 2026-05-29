@@ -1,27 +1,25 @@
 import { useState } from 'react'
-import { InputBox } from './components'
+import { InputBox } from './components/InputBox'
 import useCurrencyInfo from './hooks/useCurrencyInfo'
 
 function App() {
     const [amount, setAmount] = useState(0)
-    const [from, setFrom] = useState("usd")
-    const [to, setTo] = useState("inr")
-    const [convertedAmount, setConvertedAmount] = useState(0)
+    const [from, setFrom] = useState("USD")
+    const [to, setTo] = useState("INR")
 
-    const currencyInfo = useCurrencyInfo(from)
-    const options = Object.keys(currencyInfo)
+    const {data: currencyInfo = {}, loading} = useCurrencyInfo(from);
+    const options = Object.keys(currencyInfo||{});
+
+    const convertedAmount =
+     currencyInfo[to]
+        ? (Number(amount || 0) * Number(currencyInfo[to] || 0)).toFixed(2)
+        : 0;
 
     const swap = () => {
         setFrom(to)
         setTo(from)
-        setConvertedAmount(amount)
-        setAmount(convertedAmount)
-    }
-
-    const convert = () => {
-        if (!currencyInfo[to]) return;
-        setConvertedAmount(parseFloat((amount * currencyInfo[to]).toFixed(2)))
-    }
+        setAmount(parseFloat(convertedAmount)||0)
+    };
 
     return (
         <div
@@ -32,7 +30,12 @@ function App() {
         >
             <div className="w-full">
                 <div className="w-full max-w-md mx-auto border border-gray-60 rounded-lg p-5 backdrop-blur-sm bg-white/30">
-                    <form onSubmit={(e) => { e.preventDefault(); convert(); }}>
+                 {loading && (
+                        <p className="text-white text-center text-sm mb-2">
+                            Fetching rates...
+                        </p>
+                    )}
+                    <form onSubmit={(e) =>  e.preventDefault()}>
                         <div className="w-full mb-1">
                             <InputBox
                                 label="From"
@@ -62,8 +65,10 @@ function App() {
                                 amountDisable
                             />
                         </div>
-                        <button type="submit" className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg">
-                            Convert {from.toUpperCase()} to {to.toUpperCase()}
+                        <button
+                         type="submit" 
+                         className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg">
+                            Convert {from} to {to}
                         </button>
                     </form>
                 </div>

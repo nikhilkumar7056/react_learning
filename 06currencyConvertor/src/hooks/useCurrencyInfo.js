@@ -1,23 +1,27 @@
 import { useEffect, useState } from "react";
 
-function useCurrencyInfo(currency) {
-    const [data, setData] = useState({});
+function useCurrencyInfo(amount,from,to) {
+    const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+
     useEffect(() => {
-        if (!currency) return;
+        if (!from||!to) return;
+        
 
         fetch(
-            `https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${currency}.json`
+            `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}` 
         )
             .then((res) => {
                 if (!res.ok) throw new Error("Failed to fetch");
                 return res.json();
             })
-            .then((res) => setData(res[currency]))
+            .then((res) => {
+                setData(res[to]*amount);
+            })
             .catch((err) => console.error("Currency fetch error:", err))
             .finally(() => setLoading(false));
-    }, [currency]);
+    }, [amount,from,to]);
 
     return { data, loading };
 }

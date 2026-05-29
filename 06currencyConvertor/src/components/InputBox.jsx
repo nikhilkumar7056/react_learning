@@ -27,8 +27,9 @@ function InputBox({
                     min="0"
                     disabled={amountDisable}
                     value={amount}
-                    onChange={(e) =>
-                        onAmountChange && onAmountChange(parseFloat(e.target.value) || 0)
+                    onChange={(e) =>{
+                        onAmountChange && onAmountChange(Math.max(0,parseFloat(e.target.value)||0))
+                    }
                     }
                 />
             </div>
